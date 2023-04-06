@@ -1,8 +1,11 @@
+import React from "react";
+ 
 
-
-function GiphySearch() {
+function GiphySearch(props) {
     return (
-        <h1>Gpihy</h1>
+        <li>
+            <span>{props.cat.name}</span>
+        </li>
     )
 }
 

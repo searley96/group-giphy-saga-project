@@ -17,6 +17,19 @@ const giphys = (state = {}, action) => {
         return action.payload;
     }
     return state;
+    // switch (action.type) {
+    //     case 'SET_GIPHS':
+    //       return action.payload
+    //     default:
+    //       return state;
+    //   }
+}
+const catergories = (state = {}, action) => {
+    if (action.type === "SET_CAT") {
+        return action.payload;
+    }
+    return state;
+    
 }
 
 function* getGiphs() {
@@ -29,17 +42,37 @@ function* getGiphs() {
     }
 };
 
+function* getCat(){
+    try {
+        const catResponse = yield axios.get('/api/category')
+        console.log('Inside getCat', catResponse)
+        yield put({type: "SET_CAT", payload: catResponse.data})
+    } catch (error) {
+        console.log ('error', error)
+    }
+}
 
-
+function* postGiphs (action){
+    console.log('insife postGiphs', action);
+try{ 
+    yield axios.post ('/api/favorite', action.payload)
+    yield put ({type: "GET_GIPHS" })
+} catch (error) {
+    console.log( 'inside post Giphs error' , error);
+}
+}
 function* watcherSaga() {
     console.log("watcherSaga()")
     yield takeEvery("GET_GIPHS", getGiphs)
+    yield takeEvery("GET_CAT", getCat)
+    yield takeEvery("POST_GIPHS", postGiphs)
 }
 
 
 const store = createStore(
     combineReducers({ 
       giphys,
+      catergories,
     }),
       // Add sagaMiddleware to our store
       applyMiddleware(sagaMiddleware, logger),
