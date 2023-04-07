@@ -6,14 +6,15 @@ import FavoriteGifs from '../FavoriteGifs/FavoriteGifs';
 
 function App() {
 
-const dispatch = useDispatch();
-
 const giphys = useSelector(store => store.giphys);
 const [search, setSearch] = useState('')
 
 
 // const catergories = useSelector(store => store.catergories);
 
+  function getCatergories() {
+    dispatch({ type: "GET_CAT" });
+  }
 
 function getGiphs() {
   dispatch({ type: "GET_GIPHS", payload: search })
