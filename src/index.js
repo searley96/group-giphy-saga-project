@@ -12,18 +12,14 @@ import { takeEvery, put } from 'redux-saga/effects';
 const sagaMiddleware = createSagaMiddleware();
 
 //reducer
-const giphys = (state = {}, action) => {
+const giphys = (state = [], action) => {
     if (action.type === "SET_GIPHS") {
+        console.log('payload in reducer', action.payload)
         return action.payload;
     }
     return state;
-    // switch (action.type) {
-    //     case 'SET_GIPHS':
-    //       return action.payload
-    //     default:
-    //       return state;
-    //   }
 }
+
 const catergories = (state = {}, action) => {
     if (action.type === "SET_CAT") {
         return action.payload;
@@ -32,10 +28,12 @@ const catergories = (state = {}, action) => {
     
 }
 
-function* getGiphs() {
+function* getGiphs(action) {
+    console.log('insie gitGiphs', action.payload)
     try {
-        const giphResponse = yield axios.get('/api/search')
-        console.log('giph response', giphResponse)
+        const giphResponse = yield axios.get(`/api/search/${action.payload}`)
+        console.log('This is the action paylod', action.payload)
+        console.log('giph response', giphResponse.data)
         yield put ({ type: "SET_GIPHS", payload: giphResponse.data})
     } catch (error) {
         console.log('Error fetching giphs', error)
