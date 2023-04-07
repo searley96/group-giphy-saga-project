@@ -14,6 +14,7 @@ function GiphySearch() {
       payload: search,
     });
   };
+  ("");
   // ADD gif to favorite page:
   const FavoriteGifs = (url) => {
     dispatch({

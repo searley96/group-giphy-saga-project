@@ -41,7 +41,7 @@ function* getGiphs() {
   }
 }
 //TODO: sends axios.get to call the GIPHY APIpp
-function* getCat() {
+function* getCat(action) {
   try {
     const catResponse = yield axios.get(`/api/search/${action.payload}`);
     console.log("Inside getCat", catResponse);
