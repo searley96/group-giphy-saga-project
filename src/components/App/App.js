@@ -1,29 +1,27 @@
-import React from 'react';
-import GiphySearch from './GiphySearch/GiphySearch';
-import { useDispatch, useSelector } from 'react-redux';
-import { useEffect } from 'react';
-import FavoriteGifs from '../FavoriteGifs/FavoriteGifs';
+import React from "react";
+import GiphySearch from "./GiphySearch/GiphySearch";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import FavoriteGifs from "../FavoriteGifs/FavoriteGifs";
 
 function App(props) {
+  const dispatch = useDispatch();
 
-const dispatch = useDispatch();
+  const giphys = useSelector((store) => store.giphys);
+  const catergories = useSelector((store) => store.catergories);
 
-const giphys = useSelector(store => store.giphys);
-const catergories = useSelector(store => store.catergories);
+  // function getGiphs() {
+  //   dispatch({ type: "GET_GIPHS" })
+  // }
 
+  function getCatergories() {
+    dispatch({ type: "GET_CAT" });
+  }
 
-function getGiphs() {
-  dispatch({ type: "GET_GIPHS" })
-}
-
-function getCatergories() {
-  dispatch({ type: "GET_CAT" })
-}
-
-useEffect(() => {
-  getGiphs(),
-  getCatergories()
-}, []);
+  useEffect(() => {
+    // getGiphs(),
+    getCatergories();
+  }, []);
 
   return (
     <div>
@@ -35,7 +33,7 @@ useEffect(() => {
         )
        
       })} */}
-      <button >Favorite</button>
+      <button>Favorite</button>
     </div>
   );
 }
