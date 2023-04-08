@@ -10,7 +10,7 @@ router.get("/", (req, res) => {
 
 // add a new favorite
 router.post("/", (req, res) => {
-  res.sendStatus(200);
+  const sql = res.sendStatus(200);
 });
 
 // update given favorite with a category id

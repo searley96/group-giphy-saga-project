@@ -1,90 +1,141 @@
 import React from "react";
-import ReactDOM from "react-dom/client";
+import ReactDOM from "react-dom";
 import App from "./components/App/App";
-import { createStore, combineReducers, applyMiddleware } from "redux";
 import createSagaMiddleware from "redux-saga";
+import { createStore, combineReducers, applyMiddleware } from "redux";
 import { Provider } from "react-redux";
 import logger from "redux-logger";
-import axios from "axios";
 import { takeEvery, put } from "redux-saga/effects";
+import axios from "axios";
 
-//create saga middleware
+// This makes a middleware for us to use.
 const sagaMiddleware = createSagaMiddleware();
 
-//reducer
-const giphys = (state = {}, action) => {
-  if (action.type === "SET_GIPHS") {
-    return action.payload;
-  }
-  return state;
-  // switch (action.type) {
-  //     case 'SET_GIPHS':
-  //       return action.payload
-  //     default:
-  //       return state;
-  //   }
-};
-const catergories = (state = {}, action) => {
-  if (action.type === "SET_CAT") {
-    return action.payload;
-  }
-  return state;
-};
-
-function* getGiphs() {
+//TODO: sends axios.get to call the GIPHY API
+function* searchForGifs(action) {
+  // FRom search component,( giphysearch) this is the action
+  // this GET request talks to our server
   try {
-    const giphResponse = yield axios.get("/api/search");
-    console.log("giph response", giphResponse);
-    yield put({ type: "SET_GIPHS", payload: giphResponse.data });
-  } catch (error) {
-    console.log("Error fetching giphs", error);
+    // yield will pause and wait for a response from our server
+    const response = yield axios.get(`/api/search/${action.payload}`); //string interpolation.. //telling the server more specidic things on what to get
+    //wait PAUSE here until we get something back from GIPHY
+    // WHAT ARE WE LOOKING FOR? its the search payload from GIPHYSEACRCH.JS
+    console.log("search response", response.data);
+
+    // purpose: store the data in a reducer
+    // aka "dispatch"
+    yield put({
+      //put aka "dispatch"
+      // this is going (dispatching to a Reducer) because it has to store the data inside it
+
+      type: "SET_GIF_LIST", // determines where to find it (saga or reducer)
+      payload: response.data,
+    }); //SET is usually going to Reducer
+  } catch (err) {
+    console.error("search failed", err);
   }
 }
-//TODO: sends axios.get to call the GIPHY APIpp
-function* getCat(action) {
-  try {
-    const catResponse = yield axios.get(`/api/search/${action.payload}`);
-    console.log("Inside getCat", catResponse);
-    yield put({ type: "SET_CAT", payload: catResponse.data });
-  } catch (error) {
-    console.log("error", error);
-  }
-}
-
 //TODO: POST: add gif to favorite page
-function* postGiphs(action) {
-  pp;
-  console.log("insife postGiphs", action);
+function* createFavorite(action) {
   try {
     yield axios.post("/api/favorite", action.payload);
-    yield put({ type: "GET_GIPHS" });
-  } catch (error) {
-    console.log("inside post Giphs error", error);
+
+    yield put({
+      type: "GET_STUFF", // call the GET axios function again
+    });
+  } catch (err) {
+    console.error("createFavorite error", err);
   }
 }
-function* watcherSaga() {
-  console.log("watcherSaga()");
-  yield takeEvery("GET_GIPHS", getGiphs);
-  yield takeEvery("GET_CAT", getCat);
-  yield takeEvery("POST_GIPHS", postGiphs);
+
+function* fetchFavorites() {
+  try {
+    const response = yield axios.get("/api/favorite");
+
+    yield put({
+      type: "SET_GIF_LIST",
+      payload: response.data,
+    });
+  } catch (err) {
+    console.error("fetchFavorites err", err);
+  }
 }
 
-const store = createStore(
+function* fetchCategories() {
+  try {
+    const response = yield axios.get("/api/category");
+
+    yield put({
+      type: "SET_CATEGORY_LIST",
+      payload: response.data,
+    });
+  } catch (err) {
+    console.error("fetchFavorites err", err);
+  }
+}
+
+function* setCategory(action) {
+  // in order to set a category for a favorite, we need
+  // 1. Favorite id - sent on the URL
+  // 2. Category id - sent on the BODY (data)
+  try {
+    yield axios.put(`/api/favorite/${action.payload.favoriteId}`, {
+      // data object with category id
+      categoryId: action.payload.categoryId,
+    });
+  } catch (err) {
+    console.error("setCategory err", err);
+  }
+}
+
+// watcher sagas will watch for actions. If they match, they fire off other sagas.
+// TABLE OF CONTENTS, function cant be called if it doesnt exist here
+function* watcherSaga() {
+  yield takeEvery("SEARCH_FOR_GIFS", searchForGifs);
+  yield takeEvery("CREATE_FAVORITE", createFavorite);
+  yield takeEvery("FETCH_FAVORITES", fetchFavorites);
+  yield takeEvery("FETCH_CATEGORIES", fetchCategories);
+  yield takeEvery("SET_CATEGORY", setCategory);
+
+  // TODO fetch 1 single favorite and categories
+}
+
+// REDUCERS
+const gifList = (state = [], action) => {
+  switch (action.type) {
+    case "SET_GIF_LIST":
+      return action.payload;
+    case "CLEAR_GIF_LIST":
+      return [];
+  }
+
+  return state;
+};
+
+const categoryList = (state = [], action) => {
+  switch (action.type) {
+    case "SET_CATEGORY_LIST":
+      return action.payload;
+  }
+
+  return state;
+};
+
+const storeInstance = createStore(
   combineReducers({
-    giphys,
-    catergories,
+    gifList,
+    categoryList,
   }),
-  // Add sagaMiddleware to our store
   applyMiddleware(sagaMiddleware, logger)
 );
 
+//create saga middleware
+// This allows the watcherSaga to start watching for actions
 sagaMiddleware.run(watcherSaga);
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
-  </React.StrictMode>
+ReactDOM.render(
+  <Provider store={storeInstance}>
+    <App />
+  </Provider>,
+  document.getElementById("root")
 );

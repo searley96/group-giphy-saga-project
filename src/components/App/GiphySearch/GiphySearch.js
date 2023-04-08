@@ -10,8 +10,9 @@ function GiphySearch() {
 
   const getGiphs = () => {
     dispatch({
-      type: "GET_GIPHS",
-      payload: search,
+      type: "GET_GIPHS", // this object is the action of the saga function in index.js
+
+      payload: search, //
     });
   };
   ("");
@@ -38,7 +39,7 @@ function GiphySearch() {
       <div className="seachInput">
         <h2> Search Page </h2>
         <input
-          onChange={(event) => setSearch(event.target.value)}
+          onChange={(event) => setSearch(event.target.value)} //chaging inputs and it goes to local state
           type="text"
           placeholder="search"
         />
