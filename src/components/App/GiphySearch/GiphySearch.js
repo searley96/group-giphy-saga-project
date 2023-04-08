@@ -1,74 +1,53 @@
-import React from "react";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useState } from "react";
-import { useSelector } from "react-redux";
+import GifItem from "../GifItem/GifItem";
+import { useEffect } from "react";
 
-function GiphySearch() {
-  const giphys = useSelector((store) => store.giphys);
-  const [search, setSearch] = useState("");
+function Search() {
   const dispatch = useDispatch();
+  const [searchInput, setSearchInput] = useState("");
+  const gifList = useSelector((store) => store.gifList);
 
-  const getGiphs = () => {
+  useEffect(() => {
     dispatch({
-      type: "GET_GIPHS", // this object is the action of the saga function in index.js
-
-      payload: search, //
-    });
-  };
-  ("");
-  // ADD gif to favorite page:
-  const FavoriteGifs = (url) => {
-    dispatch({
-      type: "GET_CAT",
-      payload: url,
+      type: "CLEAR_GIF_LIST",
     });
 
-    const onMouseEnter = (event) => {
-      event.target.classList.add("hover");
-    };
-    const onMouseLeave = () => {
-      let images = document.getElementsByClassName("image");
+    // axios.get no - use a saga
+  }, []);
 
-      for (let image of images) {
-        image.classList.remove("hover");
-      }
-    };
+  const onSearch = (evt) => {
+    evt.preventDefault();
+
+    // starting the process to find gifs
+    // this object IS the action on the saga function
+    dispatch({
+      type: "SEARCH_FOR_GIFS",
+      payload: searchInput, // speaking to function* in index.js file
+    });
   };
+
   return (
     <>
-      <div className="seachInput">
-        <h2> Search Page </h2>
+      <h1>Find a GIF 🔍</h1>
+
+      <form onSubmit={onSearch}>
         <input
-          onChange={(event) => setSearch(event.target.value)} //chaging inputs and it goes to local state
           type="text"
-          placeholder="search"
+          value={searchInput}
+          onChange={(evt) => setSearchInput(evt.target.value)}
         />
-        <button onClick={getGiphs}>Seach Gifs </button>
-        {/* <span>{props.cat.name}</span>  */}
-      </div>
-      <div className="imageItems">
-        {gifs.map((gif, i) => {
-          return (
-            <div className="gifItem" onMouseLeave={onMouseLeave} key={i}>
-              <img
-                className="favorite image"
-                onMouseEnter={onMouseEnter}
-                src={gif.images.original.url}
-              />
-              <div>
-                <button
-                  id={gif.images.original.url}
-                  onClick={() => FavoriteGifs(gif.images.orginal.url)}
-                >
-                  Favorite
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+        <input type="submit" value="Find that gif 👁️" />
+      </form>
+
+      <h2>Results</h2>
+      <ul>
+        {gifList.map((item) => (
+          <GifItem key={item.image_url} gif={item} />
+        ))}
+      </ul>
     </>
   );
 }
 
-export default GiphySearch;
+export default Search;
