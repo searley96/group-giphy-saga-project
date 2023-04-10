@@ -1,10 +1,9 @@
-const express = require('express');
-const pool = require('../modules/pool');
-const axios = require('axios')
+const express = require("express");
+const pool = require("../modules/pool");
+
 const router = express.Router();
 
-router.get('/', (req, res) => {
-
+router.get("/", (req, res) => {
   // return all categories
   const queryText = `SELECT * FROM category ORDER BY name ASC`;
   pool
@@ -17,7 +16,5 @@ router.get('/', (req, res) => {
       res.sendStatus(500);
     });
 });
-
-
 
 module.exports = router;

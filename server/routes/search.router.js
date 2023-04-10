@@ -1,23 +1,4 @@
-const express = require("express");
-const pool = require("../modules/pool");
-const axios = require("axios");
-const router = express.Router();
 
-
-
-
-// SELECT * FROM favorite 
-// JOIN favorite_catergory ON favorite.id = favorite_category.favorite_id;
-// JOIN category ON category.id = favorite_category.category_id;
-// WHERE favorite.id= ${req.params.id};
-
-
-router.get("/:searchTerm ", (req, res) => { //:q
-  //:q is data we are passing along in our route
-  // let searchGif = req.params.seachTerm;
-  console.log("searchGif", searchGif);
-
-  
   axios
     .get(`https://api.giphy.com/v1/gifs/search?`, {
        params: {
